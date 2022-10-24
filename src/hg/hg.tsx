@@ -56,7 +56,7 @@ export function setRandomEdges(
 
   for (let i = 0; i < edgeNum; i++) {
     coordinatesEdges.push({
-      id: 'e' + (i + vertexNum).toString(),
+      id: 'e' + i.toString(),
       ...createUniqueCoordinates(coordinatesEdges.concat(coordinatesVertexes), 'e' + i.toString()),
     });
   }
@@ -77,11 +77,11 @@ export function setLines(
     for (let j = 0; j < vertexNum; j++) {
       if (matrix[i][j])
         coordinatesLines.push({
-          id: 'l' + (i * vertexNum + j + vertexNum + edgeNum).toString(),
+          id: 'l' + (i * vertexNum + j).toString(),
           opacity: 0,
           start: coordinatesEdges[i],
           finish: coordinatesVertexes[j],
-          name: 'l' + (i * vertexNum + j + vertexNum + edgeNum).toString()
+          name: 'l' + (i * vertexNum + j).toString()
         });
     }
   }

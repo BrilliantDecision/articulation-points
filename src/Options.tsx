@@ -7,6 +7,8 @@ import {
   setRandomVertexes,
 } from "./hg/hg";
 import { CoordinateLineList, CoordinateList, Matrix } from "./hg/hgTypes";
+import { useAppDispatch } from "./store/hooks";
+import { setBoundListOpen } from "./store/slices/appSlice";
 
 export interface OptionsProps {
   vertexNum: number;
@@ -31,6 +33,7 @@ const Options: FC<OptionsProps> = ({
   setHGVertexes,
   setHGLines,
 }) => {
+  const dispatch = useAppDispatch();
   const [isShowing, setIsShowing] = useState(false);
 
   const handleKeyDown = (event: KeyboardEvent) => {
@@ -41,6 +44,8 @@ const Options: FC<OptionsProps> = ({
   };
 
   const handleCreateHypergraph = () => {
+    dispatch(setBoundListOpen({ id: "", open: false }));
+
     const matrix = setRandomMatrix(vertexNum, edgeNum);
     const vertexes = setRandomVertexes(vertexNum);
     const edges = setRandomEdges(edgeNum, vertexNum, vertexes);

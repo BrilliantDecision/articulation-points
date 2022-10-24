@@ -6,50 +6,28 @@ import { setBoundListOpen } from "./store/slices/appSlice";
 export interface BoundListProps {
   edges: CoordinateList | null;
   vertexes: CoordinateList | null;
+  matrix: Matrix | null;
   setHGMatrix: Dispatch<SetStateAction<Matrix | null>>;
   setHGLines: Dispatch<SetStateAction<CoordinateLineList | null>>;
+  setHGEdges: Dispatch<SetStateAction<CoordinateList | null>>;
+  setHGVertexes: Dispatch<SetStateAction<CoordinateList | null>>;
 }
 
 const BoundList: FC<BoundListProps> = ({
   edges,
   vertexes,
+  matrix,
   setHGMatrix,
   setHGLines,
+  setHGEdges,
+  setHGVertexes,
 }) => {
   const dispatch = useAppDispatch();
   const { boundListOpen } = useAppSelector((state) => state.app);
   const divRef = useRef<HTMLDivElement | null>(null);
 
   const handleDelObject = (e: MouseEvent, id: string) => {
-    if (id.includes("e")) {
-      const eId = id.substring(1);
-      const vId = boundListOpen.id.substring(1);
-
-      setHGMatrix((prevState) => {
-        if (!prevState) return prevState;
-
-        const newState = [...prevState];
-        newState[Number(eId)][Number(vId)] = false;
-        return newState;
-      });
-
-      setHGLines((prevState) => {
-        if (!prevState) return prevState;
-
-        const newState = [...prevState];
-
-        for (let i = 0; i < newState.length; i++) {
-          if (
-            newState[i].start.id === id &&
-            newState[i].finish.id === boundListOpen.id
-          ) {
-            newState.splice(i, 1);
-          }
-        }
-
-        return newState;
-      });
-    } else {
+    if (id.includes("v")) {
       const eId = boundListOpen.id.substring(1);
       const vId = id.substring(1);
 
@@ -64,17 +42,28 @@ const BoundList: FC<BoundListProps> = ({
       setHGLines((prevState) => {
         if (!prevState) return prevState;
 
-        const newState = [...prevState];
+        let newState = [...prevState];
+        newState = newState.filter(val => !(val.start.id === boundListOpen.id && val.finish.id === id));
 
-        for (let i = 0; i < newState.length; i++) {
-          if (
-            newState[i].start.id === id &&
-            newState[i].finish.id === boundListOpen.id
-          ) {
-            newState.splice(i, 1);
-            break;
-          }
-        }
+        return newState;
+      });
+    } else {
+      const eId = id.substring(1);
+      const vId = boundListOpen.id.substring(1);
+
+      setHGMatrix((prevState) => {
+        if (!prevState) return prevState;
+
+        const newState = [...prevState];
+        newState[Number(eId)][Number(vId)] = false;
+        return newState;
+      });
+
+      setHGLines((prevState) => {
+        if (!prevState) return prevState;
+
+        let newState = [...prevState];
+        newState = newState.filter(val => !(val.start.id === id && val.finish.id === boundListOpen.id));
 
         return newState;
       });
@@ -85,14 +74,13 @@ const BoundList: FC<BoundListProps> = ({
     <div
       ref={divRef}
       id="boundList"
-      className={`bg-purple-100 p-5 bg-opacity-10 fixed flex flex-col w-[220px] h-full ${
-        boundListOpen.open ? "right-0" : "-right-[220px]"
-      } top-0 z-[9999] transition-all`}
+      className={`bg-purple-100 p-5 bg-opacity-10 fixed flex flex-col w-[220px] h-full ${boundListOpen.open ? "right-0" : "-right-[220px]"
+        } top-0 z-[9999] transition-all`}
     >
       <p className="text-2xl font-medium text-white">Связанные объекты</p>
       <div className="flex flex-col mt-5 gap-2 overflow-y-auto py-3 pr-3">
         {boundListOpen.id.includes("e") &&
-          vertexes?.map((val) => (
+          vertexes?.filter((val, i) =>(matrix as Matrix)[Number(boundListOpen.id.substring(1))][i]).map((val) => (
             <div key={val.id} className="flex flex-row items-center gap-2">
               <div className="flex justify-center items-center px-5 py-2 rounded-md border-white border text-white hover:text-black w-full focus:ring-0 hover:bg-opacity-50 outline-none bg-white bg-opacity-10 transition-all">
                 {val.name}
@@ -106,7 +94,7 @@ const BoundList: FC<BoundListProps> = ({
             </div>
           ))}
         {boundListOpen.id.includes("v") &&
-          edges?.map((val) => (
+          edges?.filter((val, i) =>(matrix as Matrix)[i][Number(boundListOpen.id.substring(1))]).map((val) => (
             <div key={val.id} className="flex flex-row items-center gap-2">
               <div className="flex justify-center items-center px-5 py-2 rounded-md border-white border text-white hover:text-black w-full focus:ring-0 hover:bg-opacity-50 outline-none bg-white bg-opacity-10 transition-all">
                 {val.name}

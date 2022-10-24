@@ -210,6 +210,7 @@ function App() {
       if (!boundListOpen.open) dispatch(setBoundListOpen({ id: e.target.id(), open: true }));
       else if (boundListOpen.id && e.target.id() !== boundListOpen.id) dispatch(setBoundListOpen({ id: e.target.id(), open: true }));
       else dispatch(setBoundListOpen( { id: boundListOpen.id, open: false }));
+      console.log(matrix);
   };
 
   return (
@@ -228,8 +229,11 @@ function App() {
       <BoundList
         vertexes={vertexes}
         edges={edges}
+        matrix={matrix}
         setHGMatrix={setHGMatrix}
         setHGLines={setHGLines}
+        setHGEdges={setHGEdges}
+        setHGVertexes={setHGVertexes}
       />
       <Stage
         draggable={true}
