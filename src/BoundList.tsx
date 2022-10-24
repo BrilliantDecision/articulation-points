@@ -33,9 +33,11 @@ const BoundList: FC<BoundListProps> = ({
 
       setHGMatrix((prevState) => {
         if (!prevState) return prevState;
+        console.log(prevState);
 
         const newState = [...prevState];
         newState[Number(eId)][Number(vId)] = false;
+        console.log(newState);
         return newState;
       });
 
@@ -53,9 +55,11 @@ const BoundList: FC<BoundListProps> = ({
 
       setHGMatrix((prevState) => {
         if (!prevState) return prevState;
+        console.log(prevState);
 
         const newState = [...prevState];
         newState[Number(eId)][Number(vId)] = false;
+        console.log(newState);
         return newState;
       });
 

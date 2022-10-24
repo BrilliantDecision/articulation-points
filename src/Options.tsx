@@ -70,7 +70,7 @@ const Options: FC<OptionsProps> = ({
       const newState = [...prevState];
       
       for (let i = 0; i < newState.length; i++) {
-        if (ap.includes(Number(newState[i].id))) {
+        if (ap.includes(Number(newState[i].id.substring(1)))) {
           newState[i].color = "orange";
         }
       }
