@@ -20,6 +20,7 @@ export interface OptionsProps {
   setHGEdges: Dispatch<SetStateAction<CoordinateList | null>>;
   setHGVertexes: Dispatch<SetStateAction<CoordinateList | null>>;
   setHGLines: Dispatch<SetStateAction<CoordinateLineList | null>>;
+  setShowStars: Dispatch<SetStateAction<boolean>>
 }
 
 const Options: FC<OptionsProps> = ({
@@ -31,7 +32,7 @@ const Options: FC<OptionsProps> = ({
   setHGMatrix,
   setHGEdges,
   setHGVertexes,
-  setHGLines,
+  setHGLines,setShowStars
 }) => {
   const dispatch = useAppDispatch();
   const [isShowing, setIsShowing] = useState(false);
@@ -68,7 +69,7 @@ const Options: FC<OptionsProps> = ({
       if(!prevState) return prevState;
 
       const newState = [...prevState];
-      
+
       for (let i = 0; i < newState.length; i++) {
         if (ap.includes(Number(newState[i].id.substring(1)))) {
           newState[i].color = "orange";
@@ -118,6 +119,12 @@ const Options: FC<OptionsProps> = ({
           className="px-5 py-2 rounded-md bg-white text-black bg-opacity-70 cursor-pointer hover:bg-opacity-100 transition-all focus:ring-0 outline-none"
         >
           Найти точки
+        </button>
+        <button
+            onClick={() => setShowStars((prevState) => !prevState)}
+            className="px-5 py-2 rounded-md bg-white text-black bg-opacity-70 cursor-pointer hover:bg-opacity-100 transition-all focus:ring-0 outline-none"
+        >
+          Звёзды
         </button>
       </div>
     </div>

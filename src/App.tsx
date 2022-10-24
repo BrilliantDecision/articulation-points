@@ -1,5 +1,5 @@
 import "./styles/index.css";
-import { useRef, useState } from "react";
+import React, {useEffect, useRef, useState} from "react";
 import { Circle, Layer, Line, Stage } from "react-konva";
 import Konva from "konva";
 import KonvaEventObject = Konva.KonvaEventObject;
@@ -9,17 +9,24 @@ import Options from "./Options";
 import BoundList from "./BoundList";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { setBoundListOpen } from "./store/slices/appSlice";
+import {generateStars, setRandomRadius, StarList} from "./hg/hg";
 
 function App() {
   const dispatch = useAppDispatch();
   const scaleBy = 1.01;
+  const starsNum = 1000;
+  const minRadiusStar = 1;
+  const maxRadiusStar = 3;
   const stageRef = useRef<Konva.Stage>(null);
+  const layerRef = useRef<Konva.Layer>(null);
   const [lastCenter, setLastCenter] = useState<Vector2d | null>(null);
   const [lastDist, setLastDist] = useState<number>(0);
 
   // interface
   const [vertexNum, setVertexNum] = useState(0);
   const [edgeNum, setEdgeNum] = useState(0);
+  const [stars, setStars] = useState<StarList | null>(null);
+  const [showStars, setShowStars] = useState(true);
   const { boundListOpen } = useAppSelector((state) => state.app);
 
   // hypergraph state
@@ -213,6 +220,28 @@ function App() {
       console.log(matrix);
   };
 
+  useEffect(() => {
+    if(!stars) return;
+
+    const anim = new Konva.Animation(frame => {
+      if(layerRef) {
+        layerRef.current?.getLayer().children?.
+        filter(val => val.id().includes('s')).
+        map((val) => val.setAttrs({radius: setRandomRadius(val.getAttr('radius'), minRadiusStar, maxRadiusStar)}));
+      }
+    }, layerRef.current?.getLayer());
+
+    anim.start();
+    return () => {
+      anim.stop();
+    };
+  }, [stars]);
+
+  useEffect(() => {
+    if(showStars) setStars(() => generateStars(starsNum, minRadiusStar, maxRadiusStar));
+    else setStars(() => null);
+  }, [showStars]);
+
   return (
     <div className="relative bg-[#240e4a]">
       <Options
@@ -225,6 +254,7 @@ function App() {
         setHGEdges={setHGEdges}
         setHGVertexes={setHGVertexes}
         setHGLines={setHGLines}
+        setShowStars={setShowStars}
       />
       <BoundList
         vertexes={vertexes}
@@ -246,7 +276,9 @@ function App() {
         scaleX={1}
         scaleY={1}
       >
-        <Layer>
+        <Layer
+          ref={layerRef}
+        >
           {lines &&
             lines.map((coord) => (
               <Line
@@ -304,6 +336,21 @@ function App() {
                 onMouseLeave={(e) => handleMouseEnterLeaveVertexEdge(e, 0)}
               />
             ))}
+          {stars &&
+              stars.map((coord, index) => (
+                  <Circle
+                      shadowBlur={12}
+                      shadowColor={coord.color}
+                      draggable={true}
+                      id={coord.id}
+                      key={coord.id}
+                      x={coord.x}
+                      y={coord.y}
+                      radius={coord.radius}
+                      fill={coord.color}
+                      perfectDrawEnabled={false}
+                  />
+              ))}
         </Layer>
       </Stage>
     </div>
