@@ -1,5 +1,5 @@
 import "./styles/index.css";
-import React, {useEffect, useRef, useState} from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Circle, Layer, Line, Stage } from "react-konva";
 import Konva from "konva";
 import KonvaEventObject = Konva.KonvaEventObject;
@@ -9,7 +9,7 @@ import Options from "./Options";
 import BoundList from "./BoundList";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { setBoundListOpen } from "./store/slices/appSlice";
-import {generateStars, setRandomRadius, StarList} from "./hg/hg";
+import { generateStars, setRandomRadius, StarList } from "./hg/hg";
 
 function App() {
   const dispatch = useAppDispatch();
@@ -214,20 +214,20 @@ function App() {
   };
 
   const handleOnDblClickVertex = (e: KonvaEventObject<MouseEvent>) => {
-      if (!boundListOpen.open) dispatch(setBoundListOpen({ id: e.target.id(), open: true }));
-      else if (boundListOpen.id && e.target.id() !== boundListOpen.id) dispatch(setBoundListOpen({ id: e.target.id(), open: true }));
-      else dispatch(setBoundListOpen( { id: boundListOpen.id, open: false }));
-      console.log(matrix);
+    if (!boundListOpen.open) dispatch(setBoundListOpen({ id: e.target.id(), open: true }));
+    else if (boundListOpen.id && e.target.id() !== boundListOpen.id) dispatch(setBoundListOpen({ id: e.target.id(), open: true }));
+    else dispatch(setBoundListOpen({ id: boundListOpen.id, open: false }));
+    console.log(matrix);
   };
 
   useEffect(() => {
-    if(!stars) return;
+    if (!stars) return;
 
     const anim = new Konva.Animation(frame => {
-      if(layerRef) {
+      if (layerRef) {
         layerRef.current?.getLayer().children?.
-        filter(val => val.id().includes('s')).
-        map((val) => val.setAttrs({radius: setRandomRadius(val.getAttr('radius'), minRadiusStar, maxRadiusStar)}));
+          filter(val => val.id().includes('s')).
+          map((val) => val.setAttrs({ radius: setRandomRadius(val.getAttr('radius'), minRadiusStar, maxRadiusStar) }));
       }
     }, layerRef.current?.getLayer());
 
@@ -238,7 +238,7 @@ function App() {
   }, [stars]);
 
   useEffect(() => {
-    if(showStars) setStars(() => generateStars(starsNum, minRadiusStar, maxRadiusStar));
+    if (showStars) setStars(() => generateStars(starsNum, minRadiusStar, maxRadiusStar));
     else setStars(() => null);
   }, [showStars]);
 
@@ -279,6 +279,21 @@ function App() {
         <Layer
           ref={layerRef}
         >
+          {stars &&
+            stars.map((coord) => (
+              <Circle
+                shadowBlur={12}
+                shadowColor={coord.color}
+                draggable={true}
+                id={coord.id}
+                key={coord.id}
+                x={coord.x}
+                y={coord.y}
+                radius={coord.radius}
+                fill={coord.color}
+                perfectDrawEnabled={false}
+              />
+            ))}
           {lines &&
             lines.map((coord) => (
               <Line
@@ -336,21 +351,6 @@ function App() {
                 onMouseLeave={(e) => handleMouseEnterLeaveVertexEdge(e, 0)}
               />
             ))}
-          {stars &&
-              stars.map((coord, index) => (
-                  <Circle
-                      shadowBlur={12}
-                      shadowColor={coord.color}
-                      draggable={true}
-                      id={coord.id}
-                      key={coord.id}
-                      x={coord.x}
-                      y={coord.y}
-                      radius={coord.radius}
-                      fill={coord.color}
-                      perfectDrawEnabled={false}
-                  />
-              ))}
         </Layer>
       </Stage>
     </div>

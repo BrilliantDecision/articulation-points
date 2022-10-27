@@ -1,4 +1,4 @@
-import {Coordinate, CoordinateLineList, CoordinateList, Matrix} from "./hgTypes";
+import { Coordinate, CoordinateLineList, CoordinateList, Matrix } from "./hgTypes";
 
 // const coord = [1, -1, 2, -2, 3, -3];
 
@@ -22,12 +22,18 @@ export function createUniqueCoordinates(coordinates: CoordinateList, name: strin
 
 export function setRandomMatrix(vertexNum: number, edgesNum: number) {
   const matrix: Matrix = [];
+  let vIndex = 0;
+  const vertexesPerEdge = Math.floor(vertexNum / edgesNum);
+  const vertexGap = Math.floor(vertexNum / vertexesPerEdge);
 
   for (let i = 0; i < edgesNum; i++) {
-    const arr = [];
-    for (let j = 0; j < vertexNum; j++) {
-      arr.push(Boolean(Math.round(Math.random())));
+    const arr: boolean[] = new Array(vertexNum).fill(false);
+
+    for (let j = vIndex + 1; j < vIndex + vertexesPerEdge && j < vertexNum; j++) {
+      arr[j] = true;
     }
+    arr[Math.floor((Math.random() * vertexGap) + 1) * vertexesPerEdge - 1] = true;
+    vIndex += vertexesPerEdge;
     matrix.push(arr);
   }
 
@@ -90,8 +96,8 @@ export function setLines(
 }
 
 const randomColor = () => {
-  const arrColors = ["ffffff", "ffecd3" , "bfcfff"];
-  return "#"+arrColors[Math.floor((Math.random()*3))];
+  const arrColors = ["ffffff", "ffecd3", "bfcfff"];
+  return "#" + arrColors[Math.floor((Math.random() * 3))];
 }
 
 export type StarList = Star[];
@@ -103,7 +109,7 @@ export interface Star extends Coordinate {
 export const generateStars = (starsNum: number, minRadiusStar: number, maxRadiusStar: number) => {
   const stars: StarList = [];
 
-  for(let i = 0; i < starsNum; i++) {
+  for (let i = 0; i < starsNum; i++) {
     const [newX, newY] = [
       Math.floor(Math.random() * window.innerWidth),
       Math.floor(Math.random() * window.innerHeight),
@@ -123,12 +129,12 @@ export const generateStars = (starsNum: number, minRadiusStar: number, maxRadius
 }
 
 export const setRandomRadius = (currentRadius: number, minRadiusStar: number, maxRadiusStar: number) => {
-  if(Math.round(currentRadius) === minRadiusStar) return currentRadius + 0.15;
-  else if(Math.round(currentRadius) === maxRadiusStar) return currentRadius - 0.15;
+  if (Math.round(currentRadius) === minRadiusStar) return currentRadius + 0.15;
+  else if (Math.round(currentRadius) === maxRadiusStar) return currentRadius - 0.15;
   else {
     const isAdd = Math.round(Math.random());
 
-    if(isAdd) return currentRadius + 0.15;
+    if (isAdd) return currentRadius + 0.15;
     else return currentRadius - 0.15;
   }
 }
