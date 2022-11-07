@@ -20,7 +20,9 @@ export interface OptionsProps {
   setHGEdges: Dispatch<SetStateAction<CoordinateList | null>>;
   setHGVertexes: Dispatch<SetStateAction<CoordinateList | null>>;
   setHGLines: Dispatch<SetStateAction<CoordinateLineList | null>>;
-  setShowStars: Dispatch<SetStateAction<boolean>>
+  setShowStars: Dispatch<SetStateAction<boolean>>;
+  setShowLines: Dispatch<SetStateAction<boolean>>;
+  setShowNames: Dispatch<SetStateAction<boolean>>;
 }
 
 const Options: FC<OptionsProps> = ({
@@ -32,7 +34,7 @@ const Options: FC<OptionsProps> = ({
   setHGMatrix,
   setHGEdges,
   setHGVertexes,
-  setHGLines,setShowStars
+  setHGLines,setShowStars,setShowLines,setShowNames
 }) => {
   const dispatch = useAppDispatch();
   const [isShowing, setIsShowing] = useState(false);
@@ -125,6 +127,18 @@ const Options: FC<OptionsProps> = ({
             className="px-5 py-2 rounded-md bg-white text-black bg-opacity-70 cursor-pointer hover:bg-opacity-100 transition-all focus:ring-0 outline-none"
         >
           Звёзды
+        </button>
+        <button
+            onClick={() => setShowLines((prevState) => !prevState)}
+            className="px-5 py-2 rounded-md bg-white text-black bg-opacity-70 cursor-pointer hover:bg-opacity-100 transition-all focus:ring-0 outline-none"
+        >
+          Линии
+        </button>
+        <button
+            onClick={() => setShowNames((prevState) => !prevState)}
+            className="px-5 py-2 rounded-md bg-white text-black bg-opacity-70 cursor-pointer hover:bg-opacity-100 transition-all focus:ring-0 outline-none"
+        >
+          Имена
         </button>
       </div>
     </div>

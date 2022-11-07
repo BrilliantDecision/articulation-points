@@ -2,7 +2,7 @@
 
 // This class represents an undirected graph using adjacency list
 // representation
-import { Matrix } from "./../hg/hgTypes";
+import { Matrix } from "../hg/hgTypes";
 
 export class TarjanAlgorithm {
   private readonly vertexNum: number;

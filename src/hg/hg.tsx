@@ -1,9 +1,5 @@
 import { Coordinate, CoordinateLineList, CoordinateList, Matrix } from "./hgTypes";
 
-// const coord = [1, -1, 2, -2, 3, -3];
-
-// const getCoord
-
 export function createUniqueCoordinates(coordinates: CoordinateList, name: string) {
   while (true) {
     let o = true;

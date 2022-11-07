@@ -1,6 +1,6 @@
 import "./styles/index.css";
 import React, { useEffect, useRef, useState } from "react";
-import { Circle, Layer, Line, Stage } from "react-konva";
+import {Circle, Label, Layer, Line, Stage, Tag, Text} from "react-konva";
 import Konva from "konva";
 import KonvaEventObject = Konva.KonvaEventObject;
 import Vector2d = Konva.Vector2d;
@@ -27,6 +27,8 @@ function App() {
   const [edgeNum, setEdgeNum] = useState(0);
   const [stars, setStars] = useState<StarList | null>(null);
   const [showStars, setShowStars] = useState(true);
+  const [showLines, setShowLines] = useState(false);
+  const [showNames, setShowNames] = useState(false);
   const { boundListOpen } = useAppSelector((state) => state.app);
 
   // hypergraph state
@@ -87,6 +89,7 @@ function App() {
     e: KonvaEventObject<MouseEvent>,
     opacity: number
   ) => {
+    if(showLines) return;
     setHGLines((prevState) => {
       if (!prevState) return prevState;
 
@@ -217,7 +220,6 @@ function App() {
     if (!boundListOpen.open) dispatch(setBoundListOpen({ id: e.target.id(), open: true }));
     else if (boundListOpen.id && e.target.id() !== boundListOpen.id) dispatch(setBoundListOpen({ id: e.target.id(), open: true }));
     else dispatch(setBoundListOpen({ id: boundListOpen.id, open: false }));
-    console.log(matrix);
   };
 
   useEffect(() => {
@@ -238,6 +240,34 @@ function App() {
   }, [stars]);
 
   useEffect(() => {
+    if(showLines) {
+      setHGLines((prevState) => {
+        if(!prevState) return prevState;
+
+        const newState = [...prevState];
+
+        for(let i = 0; i < newState.length; i++) {
+          newState[i].opacity = 0.5;
+        }
+
+        return newState;
+      })
+    } else {
+      setHGLines((prevState) => {
+        if(!prevState) return prevState;
+
+        const newState = [...prevState];
+
+        for(let i = 0; i < newState.length; i++) {
+          newState[i].opacity = 0;
+        }
+
+        return newState;
+      })
+    }
+  }, [showLines]);
+
+  useEffect(() => {
     if (showStars) setStars(() => generateStars(starsNum, minRadiusStar, maxRadiusStar));
     else setStars(() => null);
   }, [showStars]);
@@ -255,6 +285,8 @@ function App() {
         setHGVertexes={setHGVertexes}
         setHGLines={setHGLines}
         setShowStars={setShowStars}
+        setShowLines={setShowLines}
+        setShowNames={setShowNames}
       />
       <BoundList
         vertexes={vertexes}
@@ -264,12 +296,13 @@ function App() {
         setHGLines={setHGLines}
         setHGEdges={setHGEdges}
         setHGVertexes={setHGVertexes}
+        showLines={showLines}
       />
       <Stage
         draggable={true}
         width={window.innerWidth}
         height={window.innerHeight}
-        // onWheel={(e) => zoomStage(e)}
+        onWheel={(e) => zoomStage(e)}
         onTouchMove={(e) => handleTouch(e)}
         onTouchEnd={(e) => handleTouchEnd(e)}
         ref={stageRef}
@@ -351,6 +384,42 @@ function App() {
                 onMouseLeave={(e) => handleMouseEnterLeaveVertexEdge(e, 0)}
               />
             ))}
+          {showNames && edges &&
+              edges.map((coord) => (
+                  <Label
+                      id={coord.id}
+                      key={coord.id}
+                      x={coord.x + 10}
+                      y={coord.y + 10}
+                      radius={16}
+                      perfectDrawEnabled={false}
+                  >
+                    <Text
+                        text={coord.name}
+                        fontFamily='Calibri'
+                        fontSize={18}
+                        fill='white'
+                    />
+                  </Label>
+              ))}
+          {showNames && vertexes &&
+              vertexes.map((coord) => (
+                  <Label
+                      id={coord.id}
+                      key={coord.id}
+                      x={coord.x  + 5}
+                      y={coord.y  + 5}
+                      radius={16}
+                      perfectDrawEnabled={false}
+                  >
+                    <Text
+                        text={coord.name}
+                        fontFamily='Calibri'
+                        fontSize={18}
+                        fill='white'
+                    />
+                  </Label>
+              ))}
         </Layer>
       </Stage>
     </div>
