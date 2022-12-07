@@ -1,6 +1,6 @@
 import "./styles/index.css";
 import React, { useEffect, useRef, useState } from "react";
-import {Circle, Label, Layer, Line, Stage, Tag, Text} from "react-konva";
+import {Circle, Label, Layer, Line, Stage, Text} from "react-konva";
 import Konva from "konva";
 import KonvaEventObject = Konva.KonvaEventObject;
 import Vector2d = Konva.Vector2d;
@@ -211,7 +211,7 @@ function App() {
     }
   };
 
-  const handleTouchEnd = (e: KonvaEventObject<TouchEvent>) => {
+  const handleTouchEnd = () => {
     setLastCenter(() => null);
     setLastDist(() => 0);
   };
@@ -225,7 +225,7 @@ function App() {
   useEffect(() => {
     if (!stars) return;
 
-    const anim = new Konva.Animation(frame => {
+    const anim = new Konva.Animation(() => {
       if (layerRef) {
         layerRef.current?.getLayer().children?.
           filter(val => val.id().includes('s')).
@@ -277,7 +277,10 @@ function App() {
       <Options
         vertexNum={vertexNum}
         edgeNum={edgeNum}
+        vertexes={vertexes}
+        edges={edges}
         matrix={matrix}
+        showLines={showLines}
         setEdgeNum={setEdgeNum}
         setVertexNum={setVertexNum}
         setHGMatrix={setHGMatrix}
@@ -304,7 +307,7 @@ function App() {
         height={window.innerHeight}
         onWheel={(e) => zoomStage(e)}
         onTouchMove={(e) => handleTouch(e)}
-        onTouchEnd={(e) => handleTouchEnd(e)}
+        onTouchEnd={() => handleTouchEnd()}
         ref={stageRef}
         scaleX={1}
         scaleY={1}

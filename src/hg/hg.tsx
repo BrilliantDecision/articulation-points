@@ -1,20 +1,20 @@
-import { Coordinate, CoordinateLineList, CoordinateList, Matrix } from "./hgTypes";
+import {Coordinate, CoordinateLineList, CoordinateList, Direction, Matrix} from "./hgTypes";
 
-export function createUniqueCoordinates(coordinates: CoordinateList, name: string) {
-  while (true) {
-    let o = true;
-    const [newX, newY] = [
-      Math.floor(Math.random() * window.innerWidth),
-      Math.floor(Math.random() * window.innerHeight),
-    ];
-    coordinates.forEach((val) => {
-      if (newX === val.x || newY === val.y) {
-        o = false;
-      }
-    });
-    if (o) return { x: newX, y: newY, color: "white", name: name };
-  }
-}
+// export function createUniqueCoordinates(coordinates: CoordinateList, name: string) {
+//   while (true) {
+//     let o = true;
+//     const [newX, newY] = [
+//       Math.floor(Math.random() * window.innerWidth),
+//       Math.floor(Math.random() * window.innerHeight),
+//     ];
+//     coordinates.forEach((val) => {
+//       if (newX === val.x || newY === val.y) {
+//         o = false;
+//       }
+//     });
+//     if (o) return { x: newX, y: newY, color: "white", name: name };
+//   }
+// }
 
 export function setRandomMatrix(vertexNum: number, edgesNum: number) {
   const matrix: Matrix = [];
@@ -36,30 +36,97 @@ export function setRandomMatrix(vertexNum: number, edgesNum: number) {
   return matrix;
 }
 
-export function setRandomVertexes(vertexNum: number) {
+export function createCoordinates(objNum: number, direction: Direction, distance: number) {
+  const coordinates: {x: number, y: number}[] = [];
+  const screenWidth = window.innerWidth;
+  const screenHeight = window.innerHeight;
+  let x: number | null = null;
+  let y: number | null = null;
+  let xBegin: number | null = null;
+  let yBegin: number | null = null; // from down to up
+  let xEnd: number | null = null;
+  let yEnd: number | null = null;
+  let difference: number | null = null;
+  let step: number | null = null;
+
+  switch (direction) {
+    case "left":
+      x = 0.3 * screenWidth;
+      difference = objNum * distance;
+      yBegin = screenHeight / 2 - difference / 2;
+      yEnd = screenHeight / 2 + difference / 2;
+      step = difference / (objNum - 1);
+
+      for(let i = 0; i < objNum; i++) {
+        coordinates.push({x, y: yBegin + step * i});
+      }
+      break;
+    case "up":
+      y = 0.2 * screenHeight;
+      difference = objNum * distance;
+      xBegin = screenWidth / 2 - difference / 2;
+      xEnd = screenWidth / 2 - difference / 2;
+      step = difference / (objNum - 1);
+
+      for(let i = 0; i < objNum; i++) {
+        coordinates.push({x: xBegin + step * i, y});
+      }
+      break;
+    case "right":
+      x = 0.7 * screenWidth;
+      difference = objNum * distance;
+      yBegin = screenHeight / 2 - difference / 2;
+      yEnd = screenHeight / 2 + difference / 2;
+      step = difference / (objNum - 1);
+
+      for(let i = 0; i < objNum; i++) {
+        coordinates.push({x, y: yBegin + step * i});
+      }
+      break;
+    case "down":
+      y = 0.8 * screenHeight;
+      difference = objNum * distance;
+      xBegin = screenWidth / 2 - difference / 2;
+      xEnd = screenWidth / 2 - difference / 2;
+      step = difference / (objNum - 1);
+
+      for(let i = 0; i < objNum; i++) {
+        coordinates.push({x: xBegin + step * i, y});
+      }
+      break;
+  }
+
+  return coordinates;
+}
+
+export function setRandomVertexes(vertexNum: number, direction: Direction) {
   const coordinatesVertexes: CoordinateList = [];
+  const coordinates = createCoordinates(vertexNum, direction, 30);
 
   for (let i = 0; i < vertexNum; i++) {
     coordinatesVertexes.push({
       id: 'v' + i.toString(),
-      ...createUniqueCoordinates(coordinatesVertexes, 'v' + i.toString()),
-    });
+      x: coordinates[i].x,
+      y: coordinates[i].y,
+      color: "white",
+      name: 'v' + i.toString(),
+  });
   }
 
   return coordinatesVertexes;
 }
 
-export function setRandomEdges(
-  edgeNum: number,
-  vertexNum: number,
-  coordinatesVertexes: CoordinateList
-) {
+export function setRandomEdges(edgeNum: number, direction: Direction) {
   const coordinatesEdges: CoordinateList = [];
+  const coordinates = createCoordinates(edgeNum, direction, 40);
 
   for (let i = 0; i < edgeNum; i++) {
     coordinatesEdges.push({
       id: 'e' + i.toString(),
-      ...createUniqueCoordinates(coordinatesEdges.concat(coordinatesVertexes), 'e' + i.toString()),
+      x: coordinates[i].x,
+      y: coordinates[i].y,
+      color: "white",
+      name: 'e' + i.toString(),
     });
   }
 

@@ -1,6 +1,7 @@
 import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import { TarjanAlgorithm } from "./algorithms/tarjanAlgorithm";
 import {
+  createCoordinates,
   setLines,
   setRandomEdges,
   setRandomMatrix,
@@ -13,7 +14,10 @@ import { setBoundListOpen } from "./store/slices/appSlice";
 export interface OptionsProps {
   vertexNum: number;
   edgeNum: number;
+  vertexes: CoordinateList | null;
+  edges: CoordinateList | null;
   matrix: Matrix | null;
+  showLines: boolean;
   setVertexNum: Dispatch<SetStateAction<number>>;
   setEdgeNum: Dispatch<SetStateAction<number>>;
   setHGMatrix: Dispatch<SetStateAction<Matrix | null>>;
@@ -34,7 +38,7 @@ const Options: FC<OptionsProps> = ({
   setHGMatrix,
   setHGEdges,
   setHGVertexes,
-  setHGLines,setShowStars,setShowLines,setShowNames
+  setHGLines,setShowStars,setShowLines,setShowNames, vertexes, edges,showLines
 }) => {
   const dispatch = useAppDispatch();
   const [isShowing, setIsShowing] = useState(false);
@@ -44,20 +48,22 @@ const Options: FC<OptionsProps> = ({
       return;
     }
     if (event.key === "o") setIsShowing((prevState) => !prevState);
+    else if(event.key === 'ArrowUp' || event.key === 'ArrowLeft') onClickView('v');
+    else if(event.key === 'ArrowDown' || event.key === 'ArrowRight') onClickView('h');
   };
 
   const handleCreateHypergraph = () => {
     dispatch(setBoundListOpen({ id: "", open: false }));
 
     const matrix = setRandomMatrix(vertexNum, edgeNum);
-    const vertexes = setRandomVertexes(vertexNum);
-    const edges = setRandomEdges(edgeNum, vertexNum, vertexes);
+    const vertexes = setRandomVertexes(vertexNum, 'right');
+    const edges = setRandomEdges(edgeNum, 'left');
     const lines = setLines(vertexNum, edgeNum, matrix, edges, vertexes);
 
     setHGMatrix(() => matrix);
     setHGVertexes(() => vertexes);
     setHGEdges(() => edges);
-    setHGLines(() => lines);
+    setHGLines(() => lines.map(val => ({...val, opacity: showLines ? 0.5 : 0})));
   };
 
   const handleSearchPoints = () => {
@@ -82,13 +88,44 @@ const Options: FC<OptionsProps> = ({
     });
   };
 
+  const onClickView = (direction: 'h' | 'v') => {
+    if(!matrix) return;
+
+    const vertexesCoordinates = createCoordinates(vertexNum, direction === 'h' ? 'right' : 'down', 30);
+    const edgesCoordinates = createCoordinates(edgeNum, direction === 'h' ? 'left' : 'up',40);
+    let newVertexes: CoordinateList | [] = [];
+    let newEdges: CoordinateList | [] = [];
+
+    if(vertexes) {
+      newVertexes = [...vertexes];
+      for (let i = 0; i < newVertexes.length; i++) {
+        newVertexes[i].x = vertexesCoordinates[i].x;
+        newVertexes[i].y = vertexesCoordinates[i].y;
+      }
+      setHGVertexes(() => newVertexes);
+    }
+
+    if(edges) {
+      newEdges = [...edges];
+      for (let i = 0; i < newEdges.length; i++) {
+        newEdges[i].x = edgesCoordinates[i].x;
+        newEdges[i].y = edgesCoordinates[i].y;
+      }
+      setHGEdges(() => newEdges);
+    }
+
+    const lines = setLines(vertexNum, edgeNum, matrix, newEdges, newVertexes);
+    setHGLines(() => lines.map(val => ({...val, opacity: showLines ? 0.5 : 0})));
+  }
+
   useEffect(() => {
+    document.removeEventListener("keydown", handleKeyDown);
     document.addEventListener("keydown", handleKeyDown);
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [matrix, edges, vertexes, showLines]);
 
   return (
     <div
@@ -140,6 +177,20 @@ const Options: FC<OptionsProps> = ({
         >
           Имена
         </button>
+        {/*<div className={'flex flex-row justify-center gap-5'}>*/}
+        {/*  <img*/}
+        {/*      onClick={() => onClickView('h')}*/}
+        {/*      src={"arrow-right-line.svg"}*/}
+        {/*      alt="trash"*/}
+        {/*      className="p-1 w-10 h-10 rounded-full border-white border cursor-pointer hover:bg-opacity-50 bg-white bg-opacity-0 transition-all"*/}
+        {/*  />*/}
+        {/*  <img*/}
+        {/*      onClick={() => onClickView('v')}*/}
+        {/*      src={"arrow-down-line.svg"}*/}
+        {/*      alt="trash"*/}
+        {/*      className="p-1 w-10 h-10 rounded-full border-white border cursor-pointer hover:bg-opacity-50 bg-white bg-opacity-0 transition-all"*/}
+        {/*  />*/}
+        {/*</div>*/}
       </div>
     </div>
   );

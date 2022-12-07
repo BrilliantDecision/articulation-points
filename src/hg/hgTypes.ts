@@ -17,3 +17,5 @@ export interface CoordinateLine {
   opacity: number;
   name: string;
 }
+
+export type Direction = 'left' | 'up' | 'right' | 'down';
