@@ -27,8 +27,8 @@ function App() {
   const [edgeNum, setEdgeNum] = useState(0);
   const [stars, setStars] = useState<StarList | null>(null);
   const [showStars, setShowStars] = useState(true);
-  const [showLines, setShowLines] = useState(false);
-  const [showNames, setShowNames] = useState(false);
+  const [showLines, setShowLines] = useState(true);
+  const [showNames, setShowNames] = useState(true);
   const { boundListOpen } = useAppSelector((state) => state.app);
 
   // hypergraph state
@@ -36,6 +36,11 @@ function App() {
   const [vertexes, setHGVertexes] = useState<CoordinateList | null>(null);
   const [edges, setHGEdges] = useState<CoordinateList | null>(null);
   const [lines, setHGLines] = useState<CoordinateLineList | null>(null);
+  const [matrix1, setHGMatrix1] = useState<Matrix | null>(null);
+  const [vertexes1, setHGVertexes1] = useState<CoordinateList | null>(null);
+  const [edges1, setHGEdges1] = useState<CoordinateList | null>(null);
+  const [lines1, setHGLines1] = useState<CoordinateLineList | null>(null);
+  const [flagGraph, setFlagGraph] = useState(false);
 
   // HYPERGRAPH FUNCTIONS
 
@@ -85,6 +90,12 @@ function App() {
     setHGLines((prevState) => setNewLines(e, prevState));
   };
 
+  const handleDragMove1 = (e: KonvaEventObject<DragEvent>) => {
+    setHGVertexes1((prevState) => setNewVertexesEdges(e, prevState));
+    setHGEdges1((prevState) => setNewVertexesEdges(e, prevState));
+    setHGLines1((prevState) => setNewLines(e, prevState));
+  };
+
   const handleMouseEnterLeaveVertexEdge = (
     e: KonvaEventObject<MouseEvent>,
     opacity: number
@@ -99,6 +110,29 @@ function App() {
         if (
           newState[i].start.id === e.target.id() ||
           newState[i].finish.id === e.target.id()
+        ) {
+          newState[i].opacity = opacity;
+        }
+      }
+
+      return newState;
+    });
+  };
+
+  const handleMouseEnterLeaveVertexEdge1 = (
+      e: KonvaEventObject<MouseEvent>,
+      opacity: number
+  ) => {
+    if(showLines) return;
+    setHGLines1((prevState) => {
+      if (!prevState) return prevState;
+
+      const newState = [...prevState];
+
+      for (let i = 0; i < newState.length; i++) {
+        if (
+            newState[i].start.id === e.target.id() ||
+            newState[i].finish.id === e.target.id()
         ) {
           newState[i].opacity = opacity;
         }
@@ -220,6 +254,14 @@ function App() {
     if (!boundListOpen.open) dispatch(setBoundListOpen({ id: e.target.id(), open: true }));
     else if (boundListOpen.id && e.target.id() !== boundListOpen.id) dispatch(setBoundListOpen({ id: e.target.id(), open: true }));
     else dispatch(setBoundListOpen({ id: boundListOpen.id, open: false }));
+    setFlagGraph(() => false);
+  };
+
+  const handleOnDblClickVertex1 = (e: KonvaEventObject<MouseEvent>) => {
+    if (!boundListOpen.open) dispatch(setBoundListOpen({ id: e.target.id(), open: true }));
+    else if (boundListOpen.id && e.target.id() !== boundListOpen.id) dispatch(setBoundListOpen({ id: e.target.id(), open: true }));
+    else dispatch(setBoundListOpen({ id: boundListOpen.id, open: false }));
+    setFlagGraph(() => true);
   };
 
   useEffect(() => {
@@ -279,7 +321,10 @@ function App() {
         edgeNum={edgeNum}
         vertexes={vertexes}
         edges={edges}
+        vertexes1={vertexes1}
+        edges1={edges1}
         matrix={matrix}
+        matrix1={matrix1}
         showLines={showLines}
         setEdgeNum={setEdgeNum}
         setVertexNum={setVertexNum}
@@ -287,18 +332,22 @@ function App() {
         setHGEdges={setHGEdges}
         setHGVertexes={setHGVertexes}
         setHGLines={setHGLines}
+        setHGMatrix1={setHGMatrix1}
+        setHGEdges1={setHGEdges1}
+        setHGVertexes1={setHGVertexes1}
+        setHGLines1={setHGLines1}
         setShowStars={setShowStars}
         setShowLines={setShowLines}
         setShowNames={setShowNames}
       />
       <BoundList
-        vertexes={vertexes}
-        edges={edges}
-        matrix={matrix}
-        setHGMatrix={setHGMatrix}
-        setHGLines={setHGLines}
-        setHGEdges={setHGEdges}
-        setHGVertexes={setHGVertexes}
+        vertexes={flagGraph ? vertexes1 : vertexes}
+        edges={flagGraph ? edges1 : edges}
+        matrix={flagGraph ? matrix1 : matrix}
+        setHGMatrix={flagGraph ? setHGMatrix1 : setHGMatrix}
+        setHGLines={flagGraph ? setHGLines1 : setHGLines}
+        setHGEdges={flagGraph ? setHGEdges1 : setHGEdges}
+        setHGVertexes={flagGraph ? setHGVertexes1 : setHGVertexes}
         showLines={showLines}
       />
       <Stage
@@ -387,6 +436,63 @@ function App() {
                 onMouseLeave={(e) => handleMouseEnterLeaveVertexEdge(e, 0)}
               />
             ))}
+          {lines1 &&
+              lines1.map((coord) => (
+                  <Line
+                      id={coord.id}
+                      key={coord.id}
+                      points={[
+                        coord.start.x,
+                        coord.start.y,
+                        coord.finish.x,
+                        coord.finish.y,
+                      ]}
+                      stroke={"white"}
+                      strokeWidth={1}
+                      lineCap="round"
+                      lineJoin="round"
+                      perfectDrawEnabled={false}
+                      opacity={coord.opacity}
+                  />
+              ))}
+          {edges1 &&
+              edges1.map((coord) => (
+                  <Circle
+                      shadowBlur={16}
+                      shadowColor={coord.color}
+                      draggable={true}
+                      id={coord.id}
+                      key={coord.id}
+                      x={coord.x}
+                      y={coord.y}
+                      radius={16}
+                      fill={coord.color}
+                      perfectDrawEnabled={false}
+                      onDragMove={(e) => handleDragMove1(e)}
+                      onDblClick={(e) => handleOnDblClickVertex1(e)}
+                      onMouseEnter={(e) => handleMouseEnterLeaveVertexEdge1(e, 0.5)}
+                      onMouseLeave={(e) => handleMouseEnterLeaveVertexEdge1(e, 0)}
+                  />
+              ))}
+          {vertexes1 &&
+              vertexes1.map((coord) => (
+                  <Circle
+                      shadowBlur={12}
+                      shadowColor={coord.color}
+                      draggable={true}
+                      id={coord.id}
+                      key={coord.id}
+                      x={coord.x}
+                      y={coord.y}
+                      radius={8}
+                      fill={coord.color}
+                      perfectDrawEnabled={false}
+                      onDragMove={(e) => handleDragMove1(e)}
+                      onDblClick={(e) => handleOnDblClickVertex1(e)}
+                      onMouseEnter={(e) => handleMouseEnterLeaveVertexEdge1(e, 0.5)}
+                      onMouseLeave={(e) => handleMouseEnterLeaveVertexEdge1(e, 0)}
+                  />
+              ))}
           {showNames && edges &&
               edges.map((coord) => (
                   <Label
@@ -407,6 +513,42 @@ function App() {
               ))}
           {showNames && vertexes &&
               vertexes.map((coord) => (
+                  <Label
+                      id={coord.id}
+                      key={coord.id}
+                      x={coord.x  + 5}
+                      y={coord.y  + 5}
+                      radius={16}
+                      perfectDrawEnabled={false}
+                  >
+                    <Text
+                        text={coord.name}
+                        fontFamily='Calibri'
+                        fontSize={18}
+                        fill='white'
+                    />
+                  </Label>
+              ))}
+          {showNames && edges1 &&
+              edges1.map((coord) => (
+                  <Label
+                      id={coord.id}
+                      key={coord.id}
+                      x={coord.x + 10}
+                      y={coord.y + 10}
+                      radius={16}
+                      perfectDrawEnabled={false}
+                  >
+                    <Text
+                        text={coord.name}
+                        fontFamily='Calibri'
+                        fontSize={18}
+                        fill='white'
+                    />
+                  </Label>
+              ))}
+          {showNames && vertexes1 &&
+              vertexes1.map((coord) => (
                   <Label
                       id={coord.id}
                       key={coord.id}

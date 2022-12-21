@@ -1,20 +1,10 @@
 import {Coordinate, CoordinateLineList, CoordinateList, Direction, Matrix} from "./hgTypes";
 
-// export function createUniqueCoordinates(coordinates: CoordinateList, name: string) {
-//   while (true) {
-//     let o = true;
-//     const [newX, newY] = [
-//       Math.floor(Math.random() * window.innerWidth),
-//       Math.floor(Math.random() * window.innerHeight),
-//     ];
-//     coordinates.forEach((val) => {
-//       if (newX === val.x || newY === val.y) {
-//         o = false;
-//       }
-//     });
-//     if (o) return { x: newX, y: newY, color: "white", name: name };
-//   }
-// }
+function getRandomInt(min: number, max: number) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
 export function setRandomMatrix(vertexNum: number, edgesNum: number) {
   const matrix: Matrix = [];
@@ -51,47 +41,23 @@ export function createCoordinates(objNum: number, direction: Direction, distance
 
   switch (direction) {
     case "left":
-      x = 0.3 * screenWidth;
-      difference = objNum * distance;
-      yBegin = screenHeight / 2 - difference / 2;
-      yEnd = screenHeight / 2 + difference / 2;
-      step = difference / (objNum - 1);
+      xBegin = 50;
+      xEnd = screenWidth / 2 - 50;
+      yBegin = 50;
+      yEnd = screenHeight - 50;
 
       for(let i = 0; i < objNum; i++) {
-        coordinates.push({x, y: yBegin + step * i});
-      }
-      break;
-    case "up":
-      y = 0.2 * screenHeight;
-      difference = objNum * distance;
-      xBegin = screenWidth / 2 - difference / 2;
-      xEnd = screenWidth / 2 - difference / 2;
-      step = difference / (objNum - 1);
-
-      for(let i = 0; i < objNum; i++) {
-        coordinates.push({x: xBegin + step * i, y});
+        coordinates.push({x: getRandomInt(xBegin, xEnd), y: getRandomInt(yBegin, yEnd)});
       }
       break;
     case "right":
-      x = 0.7 * screenWidth;
-      difference = objNum * distance;
-      yBegin = screenHeight / 2 - difference / 2;
-      yEnd = screenHeight / 2 + difference / 2;
-      step = difference / (objNum - 1);
+      xBegin = screenWidth / 2 + 50;
+      xEnd = screenWidth - 50;
+      yBegin = 50;
+      yEnd = screenHeight - 50;
 
       for(let i = 0; i < objNum; i++) {
-        coordinates.push({x, y: yBegin + step * i});
-      }
-      break;
-    case "down":
-      y = 0.8 * screenHeight;
-      difference = objNum * distance;
-      xBegin = screenWidth / 2 - difference / 2;
-      xEnd = screenWidth / 2 - difference / 2;
-      step = difference / (objNum - 1);
-
-      for(let i = 0; i < objNum; i++) {
-        coordinates.push({x: xBegin + step * i, y});
+        coordinates.push({x: getRandomInt(xBegin, xEnd), y: getRandomInt(yBegin, yEnd)});
       }
       break;
   }
@@ -131,6 +97,31 @@ export function setRandomEdges(edgeNum: number, direction: Direction) {
   }
 
   return coordinatesEdges;
+}
+
+export function shuffleMatrix(matrix: Matrix) {
+  const newMatrix = [...matrix];
+
+  for(let i = 0; i < 5; i++) {
+    const rand = getRandomInt(0, matrix.length - 1);
+    const rand1 = getRandomInt(0, matrix.length - 1);
+    const temp = newMatrix[rand];
+    newMatrix[rand] = [...newMatrix[rand1]];
+    newMatrix[rand1] = [...temp];
+  }
+
+  for(let i = 0; i < 5; i++) {
+    const rand = getRandomInt(0, matrix[0].length - 1);
+    const rand1 = getRandomInt(0, matrix[0].length - 1);
+
+    for(let j = 0; j < matrix.length; j++) {
+      const temp = newMatrix[j][rand];
+      newMatrix[j][rand] = newMatrix[j][rand1];
+      newMatrix[j][rand1] = temp;
+    }
+  }
+
+  return newMatrix;
 }
 
 export function setLines(
