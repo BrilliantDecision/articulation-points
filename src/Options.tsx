@@ -1,7 +1,6 @@
 import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
-import { TarjanAlgorithm } from "./algorithms/tarjanAlgorithm";
+import { IsomorphismAlgorithm } from "./algorithms/isomorphismAlgorithm";
 import {
-  createCoordinates,
   setLines,
   setRandomEdges,
   setRandomMatrix,
@@ -87,25 +86,11 @@ const Options: FC<OptionsProps> = ({
   };
 
   const handleSearchPoints = () => {
-    if (!matrix) return;
+    if (!matrix || !matrix1) return;
 
-    const hypergraph = new TarjanAlgorithm(matrix, vertexNum);
-    const ap = hypergraph.AP();
-    alert(ap.length);
-
-    setHGVertexes((prevState) => {
-      if(!prevState) return prevState;
-
-      const newState = [...prevState];
-
-      for (let i = 0; i < newState.length; i++) {
-        if (ap.includes(Number(newState[i].id.substring(1)))) {
-          newState[i].color = "orange";
-        }
-      }
-
-      return newState;
-    });
+    const hypergraph = new IsomorphismAlgorithm(matrix, matrix1, vertexNum);
+    const isomorphism = hypergraph.isomorphism(matrix, matrix1);
+    alert(isomorphism);
   };
 
   const handleKeyDown = (event: KeyboardEvent) => {
